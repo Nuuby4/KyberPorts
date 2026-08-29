@@ -11,6 +11,7 @@
 #include <Utilities/PlatformUtils.h>
 #include <SDK/TypeInfo.h>
 #include <SDK/SDK.h>
+#include <SDK/Funcs.h>
 
 #include <ws2tcpip.h>
 #include <iomanip>
@@ -20,12 +21,12 @@
 #include <stdio.h>
 #include <thread>
 
-#define OFFSET_SERVER_CONSTRUCTOR HOOK_OFFSET(0x1416986C0)
-#define OFFSET_SERVER_START HOOK_OFFSET(0x141699340)
+#define OFFSET_SERVER_CONSTRUCTOR HOOK_OFFSET(0x141A574B0)
+#define OFFSET_SERVER_START HOOK_OFFSET(0x141A63440)
 
 #define OFFSET_CLIENT_START HOOK_OFFSET(0x1416C15B0)
 
-#define OFFSET_ENGINEPEER_INIT HOOK_OFFSET(0x141E5B580)
+#define OFFSET_ENGINEPEER_INIT HOOK_OFFSET(0x141FB5230)
 
 //#define OFFSET_SERVERPLAYER_SETTEAMID HOOK_OFFSET(0x140BE9C10)
 //#define OFFSET_SERVERPLAYER_LEAVEINGAME HOOK_OFFSET(0x146876310)
@@ -40,7 +41,7 @@
 //#define OFFSET_SERVERPLAYERMANAGER_DELETEPLAYER HOOK_OFFSET(0x140BDD950)
 
 #define OFFSET_APPLY_SETTINGS HOOK_OFFSET(0x1401B31B0)
-#define OFFSET_CLIENT_INIT_NETWORK HOOK_OFFSET(0x1416C0350)
+#define OFFSET_CLIENT_INIT_NETWORK HOOK_OFFSET(0x141A4E460)
 #define OFFSET_CLIENT_CONNECTTOADDRESS HOOK_OFFSET(0x1416C1990)
 
 #define OFFSET_SERVER_PATCH 0x1416C176C
@@ -58,7 +59,7 @@ Server::Server()
 {
     InitializeGameHooks();
     DisableGameHooks();
-    InitializeGamePatches();
+    //InitializeGamePatches();
 
     // new std::thread(&Server::PortForwardingThread, this);
 }
@@ -109,30 +110,45 @@ DWORD WINAPI Server::PortForwardingThread()
     return 0;
 }
 
-void Server::Start(const char* level, const char* mode, int maxPlayers, SocketSpawnInfo info)
+void Server::Start(const char* level, const char* startpoint, int maxPlayers, SocketSpawnInfo info)
 {
-    EnableGameHooks();
-    
-    NetworkSettings* networkSettings = Settings<NetworkSettings>("Network");
-    networkSettings->MaxClientCount = maxPlayers;
-    networkSettings->ServerPort = 25200;
+    //EnableGameHooks();
 
-    ClientSettings* clientSettings = Settings<ClientSettings>("Client");
+    LevelSetup setup;
+    LevelSetup_ctor(&setup);
+
+    // (Default) Root Level
+    setup.Name = "Game/Levels/Root/ishimura_connected";
+
+    // Starpoints
+    setup.StartPoint = const_cast<char*>(startpoint);
+    setup.InitialStartPoint = const_cast<char*>(startpoint);
+
+    // Dsublevel
+    setup.InitialDSubLevel = const_cast<char*>(level);
+
+    ServerLoadLevelMessage_post(&setup, 1, 1);
+    KYBER_LOG(LogLevel::Debug, "Loading Level(" << setup.InitialDSubLevel << "|" << setup.StartPoint << ")");
+    //NetworkSettings* networkSettings = Settings<NetworkSettings>("Network");
+    //networkSettings->MaxClientCount = maxPlayers;
+    //networkSettings->ServerPort = 25200;
+
+    //ClientSettings* clientSettings = Settings<ClientSettings>("Client");
     //KYBER_LOG(LogLevel::Debug, "CLIENT SETTINGS " << std::hex << clientSettings);
-    clientSettings->ServerIp = "";
-    clientSettings->SecondaryServerIp = "";
+    //clientSettings->ServerIp = "";
+    //clientSettings->SecondaryServerIp = "";
     
 
-    GameSettings* gameSettings = Settings<GameSettings>("Game");
-    gameSettings->Level = const_cast<char*>(level);
+    //GameSettings* gameSettings = Settings<GameSettings>("Game");
+    //gameSettings->Level = const_cast<char*>(level);
     
     //char* gameMode = new char[strlen(mode) + 11];
     //strcpy_s(gameMode, strlen(mode) + 11, "GameMode=");
     //strcat_s(gameMode, strlen(mode) + 11, mode);
-    gameSettings->StartPoint = const_cast<char*>(mode);
+    //gameSettings->StartPoint = const_cast<char*>(mode);
     
-    m_socketSpawnInfo = info;
-    g_program->ChangeClientState(ClientState_Startup);
+    //m_socketSpawnInfo = info;
+    //g_program->ChangeClientState(ClientState_Startup);
 
     m_running = true;
     m_hooksRemoved = false;
@@ -152,14 +168,14 @@ __int64 ServerCtorHk(__int64 inst, ServerSpawnInfo& info, __int64 socketManager)
     return trampoline(inst, info, socketManager);
 }
 
-__int64 ServerStartHk(__int64 inst, ServerSpawnInfo* info, ServerSpawnOverrides* spawnOverrides)
+__int64 ServerStartHk(__int64 inst, ServerSpawnInfo* info, ServerSpawnOverrides* spawnOverrides, __int64 a4)
 {
     static const auto trampoline = HookManager::Call(ServerStartHk);
     KYBER_LOG(LogLevel::Debug, "TEST");
     Server* server = g_program->m_server;
     spawnOverrides->socketManager = (__int64)server->m_socketManager;
     KYBER_LOG(LogLevel::Debug, "Overrode server socketmanager with custom")
-    return trampoline(inst, info, spawnOverrides);
+    return trampoline(inst, info, spawnOverrides, a4);
 }
 
 __int64 SettingsManagerApplyHk(__int64 inst, __int64* a2, char* script, BYTE* a4)
@@ -184,7 +200,7 @@ __int64 ClientInitNetworkHk(__int64 inst, bool singleplayer, bool localhost, boo
     static const auto trampoline = HookManager::Call(ClientInitNetworkHk);
     __int64 result = trampoline(inst, singleplayer, localhost, coop, hosted);
 
-    if (g_program->m_server->m_running || strlen(Settings<ClientSettings>("Client")->ServerIp) > 0)
+    if (g_program->m_server->m_running || strlen(Settings<ClientSettings>("Client")->ServerIp) > 0 && false)
     {
         *reinterpret_cast<__int64*>(*reinterpret_cast<__int64*>(inst + 0x60) + 0x38) =
             reinterpret_cast<__int64>(new SocketManager(ProtocolDirection::Serverbound, g_program->m_server->m_socketSpawnInfo));
@@ -273,11 +289,23 @@ __int64 EnginePeerInitHk(void* inst, SocketManager* socketManager, const char* a
 
     address = ad.c_str();
 
+    // @TODO Replace in Client::InitNetwork or Similar, shouldn't do it a func where either socket managers could be a parameter
+    if (port.find("251") != std::string::npos)
+    {
+        KYBER_LOG(LogLevel::Debug, "Created Client SocketManager");
+        socketManager = new SocketManager(Kyber::ProtocolDirection::Serverbound, SocketSpawnInfo(false, "", ""));
+    }
+    else
+    {
+        KYBER_LOG(LogLevel::Debug, "Created Server SocketManager");
+        socketManager = new SocketManager(Kyber::ProtocolDirection::Clientbound, SocketSpawnInfo(false, "", ""));
+    }
+
     return trampoline(inst, socketManager, address, titleId, versionId);
 }
     HookTemplate server_hook_offsets[] = {
     { OFFSET_SERVER_CONSTRUCTOR, ServerCtorHk },
-    { OFFSET_SERVER_START, ServerStartHk },
+    //{ OFFSET_SERVER_START, ServerStartHk },
     //{ OFFSET_CLIENT_START, ClientStartHk},
     { OFFSET_ENGINEPEER_INIT , EnginePeerInitHk },
     //{ OFFSET_SERVERPLAYER_SETTEAMID, ServerPlayerSetTeamIdHk },
@@ -289,7 +317,7 @@ __int64 EnginePeerInitHk(void* inst, SocketManager* socketManager, const char* a
     //{ OFFSET_SERVERCONNECTION_KICKPLAYER, ServerConnectionKickPlayerHk },
     //{ OFFSET_SERVERPLAYERMANAGER_DELETEPLAYER, ServerPlayerManagerDeletePlayerHk },
     //{ OFFSET_APPLY_SETTINGS, SettingsManagerApplyHk },
-    { OFFSET_CLIENT_INIT_NETWORK, ClientInitNetworkHk },
+    //{ OFFSET_CLIENT_INIT_NETWORK, ClientInitNetworkHk },
     //{ OFFSET_CLIENT_CONNECTTOADDRESS, ClientConnectToAddressHk },
 };
 

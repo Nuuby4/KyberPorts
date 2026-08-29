@@ -140,6 +140,7 @@ struct ISocket
     virtual ~ISocket() {};
 
     virtual bool Send(uint8_t* sendBuffer, int size, unsigned int flags = 0) = 0;
+    virtual bool Send2(SocketAddr& sockAddr, char* sendBuffer, int size) = 0;
     virtual int ReceiveFrom(uint8_t* buffer, int bufferSize) = 0;
 	virtual int ReceiveFromWhen(uint8_t* receiveBuffer, int maxSize, unsigned int& receivedWhen);
     virtual bool SetBroadcast(uint16_t port) = 0;
@@ -175,6 +176,7 @@ public:
     virtual bool Create(bool blocking = false) override;
     void Close();
     virtual bool Send(uint8_t* buffer, int bufferSize, unsigned int flags = 0) override;
+    virtual bool Send2(SocketAddr& sockAddr, char* sendBuffer, int size) override;
     virtual int ReceiveFrom(uint8_t* buffer, int bufferSize) override;
     virtual bool SetBroadcast(uint16_t port) override;
     virtual void SetPeerAddress(const SocketAddr& sockAddr) override;

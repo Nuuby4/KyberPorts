@@ -92,6 +92,12 @@ bool UDPSocket::Send(uint8_t* buffer, int bufferSize, unsigned int flags)
     return true;
 }
 
+bool UDPSocket::Send2(SocketAddr& sockAddr, char* sendBuffer, int size)
+{
+    // SetPeerAddress(sockAddr);
+    return Send((uint8_t*)sendBuffer, size);
+}
+
 int UDPSocket::ReceiveFrom(uint8_t* buffer, int bufferSize)
 {
     int addressSize = sizeof(sockaddr_in);

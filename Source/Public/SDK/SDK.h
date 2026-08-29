@@ -10,7 +10,15 @@ namespace Kyber
 {
 struct LevelSetup
 {
-    std::string name;
+    char* InitialDSubLevel;
+    char* StartPoint;
+    char* Name;
+    char* InitialStartPoint;
+    void* InclusionOptions;
+    uint32_t DifficultyIndex;
+    bool ForceReloadResources;
+    bool IsSaveGame;
+    bool HasPersistentSave;
 };
 
 class ServerPlayerManager

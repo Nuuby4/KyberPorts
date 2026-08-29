@@ -4,7 +4,7 @@
 
 #include <Base/Version.h>
 #include <Base/Log.h>
-#include <Render/Renderer.h>
+#include <Render/Dx12Renderer.h>
 #include <Utilities/ErrorUtils.h>
 #include <Utilities/PlatformUtils.h>
 #include <Utilities/MemoryUtils.h>
@@ -20,7 +20,7 @@
 #include <chrono>
 #include <thread>
 
-#define OFFSET_CLIENT_STATE_CHANGE HOOK_OFFSET(0x1416BE930)
+#define OFFSET_CLIENT_STATE_CHANGE HOOK_OFFSET(0x141A4C940)
 
 Kyber::Program* g_program;
 
@@ -67,20 +67,21 @@ Program::~Program()
 DWORD WINAPI Program::InitializationThread()
 {
     KYBER_LOG(LogLevel::Info, "Initializing...");
-    KYBER_LOG(LogLevel::Info, " _____     _   _   _     ____           _ ");
-    KYBER_LOG(LogLevel::Info, "| __  |___| |_| |_| |___|    \\ ___ ___| |_");
-    KYBER_LOG(LogLevel::Info, "| __ -| .'|  _|  _| | -_|  |  | .'|_ -|   |");
-    KYBER_LOG(LogLevel::Info, "|_____|__,|_| |_| |_|___|____/|__,|___|_|_|");
+    KYBER_LOG(LogLevel::Info, " __ __              __           ");
+    KYBER_LOG(LogLevel::Info, "|  \\  | _  _  _  _ |  |, __  _   ");
+    KYBER_LOG(LogLevel::Info, "|  |  || || || || ||  o \\\\ \\| |   ");
+    KYBER_LOG(LogLevel::Info, "|__\\__|\\____|\\____||____| \\  //   ");
+    KYBER_LOG(LogLevel::Info, "                           ///    ");
 
     InitializeGameHooks();
 
     //m_api = new KyberAPIService();
-    g_renderer = new Renderer();
+    g_renderer = new Dx12Renderer();
     m_server = new Server();
 
-    //g_program->m_server->Start("levels/Root/Root", "Debug_Green_WateringHole", 40, SocketSpawnInfo(false, "", ""));
-    GameSettings* gameSettings = Settings<GameSettings>("Game");
-    KYBER_LOG(LogLevel::Debug, "GAME SETTINGS: " << std::hex << gameSettings);
+    g_program->m_server->Start("Game/Levels/Dsubs/DSUB_ExteriorLower/DSUB_ExteriorLower", "CH09_0900_NIS_ToChapter10_(DEBUG)", 40, SocketSpawnInfo(false, "", ""));
+    //GameSettings* gameSettings = Settings<GameSettings>("Game");
+    //KYBER_LOG(LogLevel::Debug, "GAME SETTINGS: " << std::hex << gameSettings);
     KYBER_LOG(LogLevel::Info, "Initialized Kyber v" << KYBER_VERSION);
     KYBER_LOG(LogLevel::Warning, "Press [INSERT] on your Keyboard to use Kyber!");
 
@@ -115,8 +116,17 @@ void Program::InitializeGameHooks()
 __int64 ClientStateChangeHk(__int64 inst, ClientState currentClientState, ClientState lastClientState)
 {
     static const auto trampoline = HookManager::Call(ClientStateChangeHk);
+
+    char* stateNames[18] = { "ClientState_WaitingForStaticBundleLoad", "ClientState_LoadProfileOptions", "ClientState_LostConnection",
+        "ClientState_WaitingForUnload", "ClientState_Startup", "ClientState_StartServer", "ClientState_WaitingForLevel",
+        "ClientState_StartLoadingLevel", "ClientState_WaitingForLevelLoaded", "ClientState_WaitingForLevelLink", "ClientState_LevelLinked",
+        "ClientState_WaitingForGhosts", "ClientState_Ingame", "ClientState_LeaveIngame", "ClientState_ConnectToServer",
+        "ClientState_ShuttingDown", "ClientState_Shutdown", "ClientState_None" };
+
+
     g_program->m_clientState = currentClientState;
-    KYBER_LOG(LogLevel::Debug, "Client state changed to " << currentClientState << "|| inst: " << std::hex << inst);
+    KYBER_LOG(LogLevel::Debug, "Client state changed to " << stateNames[currentClientState]);
+    /*
     Server* server = g_program->m_server;
     if (currentClientState == ClientState_Startup)
     {
@@ -144,6 +154,7 @@ __int64 ClientStateChangeHk(__int64 inst, ClientState currentClientState, Client
     {
         server->InitializeGameSettings();
     }
+    */
     return trampoline(inst, currentClientState, lastClientState);
 }
 

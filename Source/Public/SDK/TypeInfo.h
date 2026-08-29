@@ -248,35 +248,50 @@ class PlayerData : public Asset
 public:
     PlayerViewData* PlayerView; // 0x0020
 };
-class GameSettings : public SystemSettings
+
+class RuntimeSimulationSettings : public SystemSettings
 {
 public:
-        uint32_t MaxPlayerCount;
-        char pad_0004[0x28];
-        /* GameModeViewDefinitions;
-         PointerRef<> Version;
-        PointerRef<> LayerInclusionTable;
-        PointerRef<> Player;
-        List<PointerRef<GameSettingsComponent>> GameSettingsComponents;*/
-        uint32_t MaxSpectatorCount;
-        LogFileCollisionMode LogFileCollisionMode;
-        uint32_t LogFileRotationHistoryLength;
-        char* Level;
-        char* StartPoint;
-        char* InstallationLevel;
-        char* InstallationStartPoint;
-        char* ActiveGameModeViewDefinition;
-        char* DefaultLayerInclusion;
-        float TimeToWaitForQuitTaskCompletion;
-        float MaxAllowedLatency;
-        uint32_t MoveManagerOutgoingFrequencyDivider;
-        uint32_t MoveManagerSinglePlayerOutgoingFrequencyDivider;
-        uint32_t MaxCorrectionUpdateCount;
-        bool LogFileEnable;
-        bool ResourceRefreshAlwaysAllowed;
-        bool DisableToggleEntryCamera;
-        bool EnableAutomaticCorrectionUpdateCount;
+    char* Level;
+    void* Schematics;
+    void* EventUpdatePassAssets;
 };
+
+class GameSettings : public RuntimeSimulationSettings
+{
+public:
+    void* Player;
+    char* StartPoint;
+    char* ActiveGameModeViewDefinition;
+    void* GameModeViewDefinitions;
+    char* InitialDSubLevel;
+    char* InstallationLevel;
+    void* GameSettingsComponents;
+    void* Version;
+    void* ClientUpdatePassGraph;
+    void* ServerUpdatePassGraph;
+    char* InstallationStartPoint;
+    char* DefaultLayerInclusion;
+    uint32_t MaxPlayerCount;
+    uint32_t ClientDestructionConfirmationTimer;
+    uint32_t MaxCorrectionUpdateCount;
+    int32_t GameSimulationLoopThreadProcessor;
+    float TimeToWaitForQuitTaskCompletion;
+    uint32_t LogFileCollisionMode;
+    uint32_t GameSimulationLoopThreadStackSize;
+    uint32_t MoveManagerOutgoingFrequencyDivider;
+    float MaxAllowedLatency;
+    uint32_t MaxSpectatorCount;
+    uint32_t MoveManagerSinglePlayerOutgoingFrequencyDivider;
+    uint32_t LogFileRotationHistoryLength;
+    bool KeepResourcesOverTransitions;
+    bool EnableDefaultLayerInclusion;
+    bool LogFileEnable;
+    bool DisableToggleEntryCamera;
+    bool ResourceRefreshAlwaysAllowed;
+    bool EnableAutomaticCorrectionUpdateCount;
+};
+
 
 class NetworkSettings : public SystemSettings
 {
