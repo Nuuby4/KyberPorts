@@ -79,7 +79,7 @@ DWORD WINAPI Program::InitializationThread()
     g_renderer = new Dx12Renderer();
     m_server = new Server();
 
-    g_program->m_server->Start("Game/Levels/Dsubs/DSUB_ExteriorLower/DSUB_ExteriorLower", "CH09_0900_NIS_ToChapter10_(DEBUG)", 40, SocketSpawnInfo(false, "", ""));
+    //g_program->m_server->Start("Game/Levels/Dsubs/DSUB_ExteriorLower/DSUB_ExteriorLower", "CH09_0900_NIS_ToChapter10_(DEBUG)", 40, SocketSpawnInfo(false, "", ""));
     //GameSettings* gameSettings = Settings<GameSettings>("Game");
     //KYBER_LOG(LogLevel::Debug, "GAME SETTINGS: " << std::hex << gameSettings);
     KYBER_LOG(LogLevel::Info, "Initialized Kyber v" << KYBER_VERSION);

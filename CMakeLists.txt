@@ -25,15 +25,18 @@ file(GLOB_RECURSE INCLUDE_SOURCES CONFIGURE_DEPENDS
         ${PROJECT_SOURCE_DIR}/Libraries/Sources/*.cpp
 )
 
+file(GLOB_RECURSE IMGUI_SOURCES CONFIGURE_DEPENDS
+	${PROJECT_SOURCE_DIR}/Libraries/Include/imgui/*.cpp
+)
+
 # Begone
 add_compile_definitions(_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING)
 
-add_library(Kyber MODULE ${DLL_SOURCES} ${INCLUDE_SOURCES} "Source/Public/Hook/Func.h" "Source/Public/SDK/Funcs.h")
+add_library(Kyber MODULE ${DLL_SOURCES} ${INCLUDE_SOURCES} ${IMGUI_SOURCES} "Source/Public/Hook/Func.h" "Source/Public/SDK/Funcs.h")
 
 file(GLOB_RECURSE LIBRARIES CONFIGURE_DEPENDS
         ${PROJECT_SOURCE_DIR}/Libraries/Binaries/*.lib
 )
 
 set_target_properties(Kyber PROPERTIES LINK_FLAGS "/ignore:4075 /ignore:4098 /LTCG")
-target_link_libraries(Kyber Ws2_32.lib d3d11.lib dxgi.lib ${LIBRARIES})
-
+target_link_libraries(Kyber d3d12.lib dxgi.lib ${LIBRARIES})
