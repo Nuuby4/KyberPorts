@@ -154,6 +154,24 @@ void Server::Start(const char* level, const char* startpoint, int maxPlayers, So
     m_hooksRemoved = false;
 }
 
+void Server::LoadLevel(const char* level, const char* startpoint)
+{
+    LevelSetup setup;
+    LevelSetup_ctor(&setup);
+
+    setup.Name = "Game/Levels/Root/ishimura_connected";
+
+    // Starpoints
+    setup.StartPoint = const_cast<char*>(startpoint);
+    setup.InitialStartPoint = const_cast<char*>(startpoint);
+
+    // Dsublevel
+    setup.InitialDSubLevel = const_cast<char*>(level);
+
+    ServerLoadLevelMessage_post(&setup, 1, 1);
+    KYBER_LOG(LogLevel::Debug, "Loading Level(" << setup.InitialDSubLevel << "|" << setup.StartPoint << ")");
+}
+
 __int64 ServerCtorHk(__int64 inst, ServerSpawnInfo& info, __int64 socketManager)
 {
     static const auto trampoline = HookManager::Call(ServerCtorHk);

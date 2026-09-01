@@ -51,7 +51,7 @@ public:
     HMODULE m_module;
     APIService* m_api;
     Server* m_server;
-    ClientState m_clientState;
+    ClientState m_clientState = ClientState_None;
     bool m_joining;
 };
 

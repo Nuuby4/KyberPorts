@@ -6,27 +6,15 @@
 
 namespace Kyber
 {
-GameMode GetGameMode(const char* mode)
-{
-    for (int i = 0; i < sizeof(s_game_modes) / sizeof(GameMode); i++)
+    std::vector<const char*> GetStartPoints(const char* level)
     {
-        if (strcmp(s_game_modes[i].mode, mode) == 0)
+        for (const StartPointMap& mode : s_level_to_point)
         {
-            return s_game_modes[i];
+            if (std::strcmp(mode.level, level) == 0)
+            {
+                return mode.startpoints;
+            }
         }
+        return {};
     }
-    return { "Unknown", "Unknown", {}, {} };
-}
-
-GameLevel GetGameLevel(GameMode mode, const char* level)
-{
-    for (int j = 0; j < mode.levelOverrides.size(); j++)
-    {
-        if (strcmp(mode.levelOverrides[j].level, level) == 0)
-        {
-            return mode.levelOverrides[j];
-        }
-    }
-    return GetGameLevel(level);
-}
 } // namespace Kyber
