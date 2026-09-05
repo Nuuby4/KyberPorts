@@ -4,6 +4,12 @@
 
 #include <stddef.h>
 
+#define TYPEINFO_GAMESETTINGS 0x1455E1CE0
+#define TYPEINFO_SERVERSETTINGS 0x1455D25B0
+#define TYPEINFO_CLIENTSETTINGS 0x1455CF940
+#define TYPEINFO_NETWORKSETTINGS 0x1455DBDE0
+#define TYPEINFO_SIMULATIONTIMESETTINGS 0x14542BB90
+
 namespace Kyber
 {
 enum ClientState
@@ -33,6 +39,7 @@ enum ClientState
 
     ClientState_None,
 };
+
 enum SecureReason
 {
     SecureReason_Ok,
@@ -97,11 +104,13 @@ enum SecureReason
     SecureReason_TrialExpired,
     SecureReason_TrialUpgraded
 };
+
 class DataContainer
 {
 public:
-    char _0x000[24]; // 0x0000
+    char _0x000[0x18]; // 0x0000
 };
+
 enum GamePlatform
 {
     GamePlatform_Win32,   // 0x0000
@@ -115,19 +124,21 @@ enum GamePlatform
     GamePlatform_Invalid, // 0x0008
     GamePlatformCount     // 0x0009
 };
+
 class SystemSettings : public DataContainer
 {
 public:
     GamePlatform Platform; // 0x0018
     char _0x001C[4];       // 0x001C
-    char _0x0020[0x10];    // 0x0020
 };
+
 enum LogFileCollisionMode
 {
     LFCM_Overwrite, // 0x0000
     LFCM_Rotate,    // 0x0001
     LFCM_TimeStamp  // 0x0002
 };
+
 enum TeamId
 {
     TeamNeutral, // 0x0000
@@ -149,11 +160,13 @@ enum TeamId
     Team16,      // 0x0010
     TeamIdCount  // 0x0011
 };
+
 class Asset : public DataContainer
 {
 public:
     char* Name; // 0x0018
 };
+
 enum LocalPlayerViewId
 {
     LocalPlayerViewId_RootView,  // 0x0000
@@ -164,6 +177,7 @@ enum LocalPlayerViewId
     LocalPlayerViewId_Custom4,   // 0x0005
     LocalPlayerViewId_Count      // 0x0006
 };
+
 enum ViewDefinitionType
 {
     ViewType_FullScreen,                  // 0x0000
@@ -173,6 +187,7 @@ enum ViewDefinitionType
     ViewType_AutoQuadrant,                // 0x0004
     ViewType_Custom                       // 0x0005
 };
+
 struct ViewDefinition
 {
     LocalPlayerViewId ViewId;    // 0x0000
@@ -186,6 +201,7 @@ struct ViewDefinition
     bool NormalizedSize;         // 0x0020
     char _0x0021[3];             // 0x0021
 };
+
 enum LocalPlayerId
 {
     LocalPlayerId_0,      // 0x0000
@@ -200,18 +216,21 @@ enum LocalPlayerId
     LocalPlayerId_All,    // 0x0009
     LocalPlayerId_Invalid // 0x000A
 };
+
 struct PlayerViewDefinition
 {
     ViewDefinition* Views;       // 0x0000
     LocalPlayerId LocalPlayerId; // 0x0008
     char _0x000C[4];             // 0x000C
 };
+
 class GameModeViewDefinition : public Asset
 {
 public:
     char* GameModeName;                    // 0x0020
     PlayerViewDefinition* ViewDefinitions; // 0x0028
 };
+
 class GameSettingsComponent : public Asset
 {};
 class VersionData : public Asset
@@ -225,17 +244,20 @@ public:
     char* DataBranchId; // 0x0040
     char* GameName;     // 0x0048
 };
+
 class SubWorldInclusionCriterion : public DataContainer
 {
 public:
     char** Options; // 0x0018
     char* Name;     // 0x0020
 };
+
 class SubWorldInclusion : public Asset
 {
 public:
     SubWorldInclusionCriterion** Criteria; // 0x0020
 };
+
 class SubViewData : public DataContainer
 {};
 class PlayerViewData : public DataContainer
@@ -243,6 +265,7 @@ class PlayerViewData : public DataContainer
 public:
     SubViewData** SubViews; // 0x0018
 };
+
 class PlayerData : public Asset
 {
 public:
@@ -277,7 +300,7 @@ public:
     uint32_t MaxCorrectionUpdateCount;
     int32_t GameSimulationLoopThreadProcessor;
     float TimeToWaitForQuitTaskCompletion;
-    uint32_t LogFileCollisionMode;
+    LogFileCollisionMode LogFileCollisionMode;
     uint32_t GameSimulationLoopThreadStackSize;
     uint32_t MoveManagerOutgoingFrequencyDivider;
     float MaxAllowedLatency;
@@ -292,45 +315,36 @@ public:
     bool EnableAutomaticCorrectionUpdateCount;
 };
 
-
 class NetworkSettings : public SystemSettings
 {
 public:
-    uint32_t ProtocolVersion;
-    uint32_t Field_10fe2a74;
-    const char* TitleId;
-    uint32_t ClientPort;
+    char* ClientConnectionDebugFilePrefix;
+    char* TitleId;
+    char* ServerConnectionDebugFilePrefix;
+    char* ServerAddress;
     uint32_t ServerPort;
-    uint32_t MaxGhostCount;
-    uint32_t MaxClientToServerGhostCount;
-    uint32_t MaxClientCount;
-    uint32_t MaxClientFrameSize;
-    uint32_t MaxServerFrameSize;
-    const char* ServerAddress;
-    const char* ClientConnectionDebugFilePrefix;
-    const char* ServerConnectionDebugFilePrefix;
-    float SinglePlayerTimeNudgeBias;
-    float SinglePlayerTimeNudge;
-    float MemorySocketTimeNudgeBias;
-    float MemorySocketTimeNudge;
-    float LocalHostTimeNudgeBias;
-    float LocalHostTimeNudge;
-    float DefaultTimeNudgeBias;
-    float DefaultTimeNudge;
-    float ConnectTimeout;
     float PacketLossLogInterval;
-    uint32_t ValidLocalPlayersMask;
-    uint32_t DesiredLocalPlayersMask;
+    float ConnectTimeout;
+    uint32_t ClientPort;
+    uint32_t MaxInProcessFrameSize;
+    uint32_t MaxServerFrameSize;
+    uint32_t MaxClientCount;
+    uint32_t ProtocolVersion;
+    uint32_t MaxMessagesPerNetworkFrame;
     uint32_t PersistentLocalPlayersMask;
-    bool ProtocolVersionUseChangelist;
-    bool SinglePlayerAutomaticTimeNudge;
-    bool LocalHostAutomaticTimeNudge;
-    bool DefaultAutomaticTimeNudge;
-    bool IncrementServerPortOnFail;
+    uint32_t MaxVoipPeers;
+    uint32_t MaxGhostCount;
+    uint32_t SinglePlayerMaxMessagesPerNetworkFrame;
+    uint32_t DesiredLocalPlayersMask;
+    uint32_t ValidLocalPlayersMask;
+    uint32_t MaxClientToServerGhostCount;
+    uint32_t MaxClientFrameSize;
     bool UseFrameManager;
     bool TimeSyncEnabled;
     bool MLUREnabled;
+    bool IncrementServerPortOnFail;
 };
+
 struct Guid
 {
     uint32_t data1;
@@ -338,61 +352,118 @@ struct Guid
     uint16_t data3;
     uint8_t data4[8];
 };
+
+class InternetSimulationSettings
+{
+public:
+    float LatencyMin;
+    float LatencyVariance;
+    float ReorderRatioMax;
+    float DropRatioMin;
+    float ReorderRatioMin;
+    float BandwidthDelayMax;
+    float SpikeDurationMin;
+    float CorruptRatioMin;
+    float SizeRatioMin;
+    float SpikeDurationMax;
+    float SpikeCooldownMax;
+    float DuplicateRatioMin;
+    float CorruptRatioMax;
+    float DropRatioMax;
+    float SpikeCooldownVariance;
+    float BandwidthMax;
+    float SpikeCooldownMin;
+    float SpikeDurationVariance;
+    float LatencyMax;
+    float DuplicateRatioMax;
+    float SizeRatioMax;
+    bool Enable;
+};
+
+class ShutdownSettings
+{
+public:
+    float TerminateShutdownTimeSeconds;
+    float GracefulShutdownTimeSeconds;
+    bool Enabled;
+    bool ShutdownOnZeroPlayers;
+};
+
 class ClientSettings : public SystemSettings
 {
 public:
-    Guid AudioSystemGuid;
     char* ScreenshotFilename;
     char* ScreenshotSuffix;
-    uint32_t Team;
-    int32_t SpawnPointIndex;
     char* ServerIp;
+    char* InstancePath;
     char* SecondaryServerIp;
+    InternetSimulationSettings OutgoingInternetSimulation;
+    InternetSimulationSettings IncomingInternetSimulation;
+    Guid AudioSystemGuid;
+    ShutdownSettings ShutdownSettings;
+    uint32_t IncomingRate;
+    float LoadingTimeout;
+    uint32_t OutgoingRate;
     float AimScale;
     float IncomingFrequency;
     float OutgoingFrequency;
-    uint32_t IncomingRate;
-    uint32_t OutgoingRate;
-    float LoadingTimeout;
+    uint32_t MaxEnqueuedMoves;
     float LoadedTimeout;
-    float IngameTimeout;
+    int32_t SpawnPointIndex;
+    uint32_t Team;
     float CpuQuality;
-    char* InstancePath;
-    bool IsSpectator;
-    bool AllowVideoRecording;
-    bool DebrisClusterEnabled;
-    bool VegetationEnabled;
+    float IngameTimeout;
     bool ForceEnabled;
-    bool WorldRenderEnabled;
-    bool TerrainEnabled;
-    bool WaterPhysicsEnabled;
-    bool OvergrowthEnabled;
-    bool EffectsEnabled;
-    bool AutoIncrementPadIndex;
-    bool LipSyncEnabled;
-    bool PauseGameOnStartUp;
-    bool SkipFastLevelLoad;
-    bool ScreenshotToFile;
-    bool LoadMenu;
-    bool DebugMenuOnLThumb;
+    bool CameraJobsEnabled;
     bool ScreenshotComparisonsEnable;
-    bool RenderTags;
-    bool Scheme0FlipY;
-    bool Scheme1FlipY;
-    bool Scheme2FlipY;
-    bool SampleInputEveryVisualFrame;
-    bool HavokVisualDebugger;
-    bool HavokCaptureToFile;
-    bool ShowBuildId;
-    bool ExtractPersistenceInformation;
+    bool IsSpectator;
     bool EnableRestTool;
     bool LocalVehicleSimulationEnabled;
-    bool AutoUnspawnDynamicObjects;
-    bool QuitGameOnServerDisconnect;
+    bool EffectsEnabled;
+    bool ScreenshotToFile;
+    bool UseCorrectionCache;
+    bool AutoIncrementPadIndex;
+    bool DebrisClusterEnabled;
+    bool TerrainEnabled;
+    bool OverrideRemoteInternetSimulation;
+    bool ExtractPersistenceInformation;
+    bool DebugMenuOnLThumb;
+    bool UseDebugSocket;
+    bool LipSyncEnabled;
+    bool WindVectorFieldEnabled;
+    bool Scheme0FlipY;
+    bool ShowBuildId;
+    bool WaterPhysicsEnabled;
     bool LuaOptionSetEnable;
-    bool SimulationLodEnable;
-    bool AllowDlssCapture;
+    bool OvergrowthEnabled;
+    bool SampleInputEveryVisualFrame;
+    bool WorldRenderEnabled;
+    bool SkipFastLevelLoad;
+    bool Scheme1FlipY;
+    bool QuitGameOnServerDisconnect;
+    bool VegetationEnabled;
+    bool LoadMenu;
+    bool Scheme2FlipY;
+    bool AutoUnspawnDynamicObjects;
+    bool AllowOverrideInternetSimulation;
+    bool PauseGameOnStartUp;
+    bool RenderTags;
 };
+
+class SimulationTimeSettings : public SystemSettings
+{
+public:
+    uint32_t DebugFrameDelayMs;
+    uint32_t MaxVirtualTicks;
+    float TimeScale;
+    float ForceDeltaTime;
+    uint32_t DedicatedServerSleepInMsDuringLoading;
+    float MaxSimFps;
+    uint32_t ForceSimRate;
+    bool UseWaitableTimers;
+    bool ForceUseSleepTimer;
+};
+
 class WSGameSettings : public SystemSettings
 {
 public:
@@ -423,6 +494,7 @@ public:
     bool AutoBalanceTeamsOnNeutral;               // 0x006D
     char _0x006E[2];                              // 0x006E
 };
+
 class AutoPlayerSettings : public SystemSettings
 {
 public:
@@ -693,6 +765,7 @@ public:
     bool VehicleUseCharacterThrottle;                            // 0x031C
     char _0x031D[3];                                             // 0x031D
 };
+
 struct NetObjectPrioritySettings
 {
     float MinFrequencyFactor;           // 0x0000
@@ -705,6 +778,7 @@ struct NetObjectPrioritySettings
     float MaxCameraFovDegrees;          // 0x001C
     float MinCameraFovDegrees;          // 0x0020
 };
+
 struct NetObjectSystemDebugSettings
 {
     float IncomingReplicationStatusReportMaxDelta;         // 0x0000
@@ -725,6 +799,7 @@ struct NetObjectSystemDebugSettings
     bool WarnOnWaitingForCreationAck;                      // 0x0022
     char _0x0023[5];                                       // 0x0023
 };
+
 struct DeltaCompressionSettings
 {
     uint32_t BaselineReuseCount;          // 0x0000
@@ -732,6 +807,7 @@ struct DeltaCompressionSettings
     bool ShareBaselinesAcrossConnections; // 0x0005
     char _0x0006[2];                      // 0x0006
 };
+
 class NetObjectSystemSettings : public DataContainer
 {
 public:

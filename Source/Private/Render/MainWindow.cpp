@@ -127,6 +127,13 @@ void MainWindow::Draw()
             {
                 ImGui::EndDisabled();
             }
+
+            ImGui::Spacing();
+            ImGui::SeparatorText("Server Settings");
+
+            SimulationTimeSettings* simTimeSettings = Settings<SimulationTimeSettings>(TYPEINFO_SIMULATIONTIMESETTINGS);
+            ImGui::InputFloat("Time Scale", &simTimeSettings->TimeScale, 0.1f, 1.0f, "%.2f");
+
             ImGui::EndTabItem();
         }
         #pragma endregion

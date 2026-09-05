@@ -154,6 +154,24 @@ void Server::Start(const char* level, const char* startpoint, int maxPlayers, So
     m_hooksRemoved = false;
 }
 
+void Server::StartMultiplayer(const char* level, const char* startpoint)
+{
+    LevelSetup setup;
+    LevelSetup_ctor(&setup);
+
+    setup.Name = "Game/Levels/Root/ishimura_connected";
+
+    // Starpoints
+    setup.StartPoint = const_cast<char*>(startpoint);
+    setup.InitialStartPoint = const_cast<char*>(startpoint);
+
+    // Dsublevel
+    setup.InitialDSubLevel = const_cast<char*>(level);
+
+    Client_restartServer(0, &setup, 0, 0);
+    KYBER_LOG(LogLevel::Info, "Starting Multiplayer (" << setup.InitialDSubLevel << "|" << setup.StartPoint << ")");
+}
+
 void Server::LoadLevel(const char* level, const char* startpoint)
 {
     LevelSetup setup;
@@ -169,7 +187,7 @@ void Server::LoadLevel(const char* level, const char* startpoint)
     setup.InitialDSubLevel = const_cast<char*>(level);
 
     ServerLoadLevelMessage_post(&setup, 1, 1);
-    KYBER_LOG(LogLevel::Debug, "Loading Level(" << setup.InitialDSubLevel << "|" << setup.StartPoint << ")");
+    KYBER_LOG(LogLevel::Info, "Loading Level (" << setup.InitialDSubLevel << "|" << setup.StartPoint << ")");
 }
 
 __int64 ServerCtorHk(__int64 inst, ServerSpawnInfo& info, __int64 socketManager)
@@ -217,13 +235,13 @@ __int64 ClientInitNetworkHk(__int64 inst, bool singleplayer, bool localhost, boo
 {
     static const auto trampoline = HookManager::Call(ClientInitNetworkHk);
     __int64 result = trampoline(inst, singleplayer, localhost, coop, hosted);
-
+    /*
     if (g_program->m_server->m_running || strlen(Settings<ClientSettings>("Client")->ServerIp) > 0 && false)
     {
         *reinterpret_cast<__int64*>(*reinterpret_cast<__int64*>(inst + 0x60) + 0x38) =
             reinterpret_cast<__int64>(new SocketManager(ProtocolDirection::Serverbound, g_program->m_server->m_socketSpawnInfo));
     }
-
+    */
     return result;
 }
 

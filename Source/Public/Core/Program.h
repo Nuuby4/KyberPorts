@@ -9,16 +9,13 @@
 
 #include <Windows.h>
 
-#define OFFSET_GLOBAL_CLIENT 0x1446CD4B0
-#define OFFSET_GLOBAL_SETTINGS_MANAGER 0x1446B4130
-//#define OFFSET_GET_CLIENT_INSTANCE 0x14659DE50
-
+#define OFFSET_GLOBAL_SETTINGS_MANAGER 0x1453E0508
 
 namespace Kyber
 {
-__int64 ClientStateChangeHk(__int64 a1, ClientState currentClientState, ClientState lastClientState);
+TL_DECLARE_FUNC(0x14119B8C0, __int64, Settings_Settings, __int64 settingsManager, __int64 typeInfo);
 
-TL_DECLARE_FUNC(0x1403EE890, __int64, Settings_GetObject, __int64 settingsManager, __int64* a2, const char** identifier);
+__int64 ClientStateChangeHk(__int64 a1, ClientState currentClientState, ClientState lastClientState);
 
 class Program
 {
@@ -29,23 +26,11 @@ public:
     DWORD WINAPI InitializationThread();
     void InitializeGameHooks();
 
-
     template<typename T>
-    T* GetSettingsObject(const char* identifier)
-    {
-        __int64 result[2]; 
-        __int64 settingsManagerPtr = *reinterpret_cast<__int64*>(OFFSET_GLOBAL_SETTINGS_MANAGER);
-
-        Settings_GetObject(settingsManagerPtr + 0x90, result, &identifier);
-
-        return reinterpret_cast<T*>(*reinterpret_cast<__int64*>(result[0] + 0x8));
-    }
-
-    __int64 ChangeClientState(ClientState currentClientState)
-    {
-        return ClientStateChangeHk(
-            *reinterpret_cast<__int64*>(*reinterpret_cast<__int64*>(OFFSET_GLOBAL_CLIENT) + 0x70),
-            currentClientState, m_clientState);
+    T* GetSettingsObject(const __int64 typeInfoOffset)
+    { 
+        return reinterpret_cast<T*>(
+            Settings_Settings(*reinterpret_cast<__int64*>(OFFSET_GLOBAL_SETTINGS_MANAGER), typeInfoOffset)); 
     }
 
     HMODULE m_module;
@@ -59,9 +44,9 @@ template<class T>
 class Settings
 {
 public:
-    Settings(const char* identifier)
-    {
-        m_settings = g_program->GetSettingsObject<T>(identifier);
+    Settings(const __int64 typeInfoOffset)
+    { 
+        m_settings = g_program->GetSettingsObject<T>(typeInfoOffset);
     }
 
     inline T* operator->()

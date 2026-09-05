@@ -38,7 +38,9 @@ public:
     void Start(const char* level, const char* mode, int maxPlayers, SocketSpawnInfo info);
     void Stop();
 
+    void StartMultiplayer(const char* level, const char* startpoint);
     void LoadLevel(const char* level, const char* startpoint);
+
     void SetPlayerTeam(ServerPlayer* player, int teamId)
     {
         return ServerPlayerSetTeamIdHk(player, teamId);

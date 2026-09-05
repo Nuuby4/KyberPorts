@@ -10,6 +10,7 @@
 #include <Utilities/MemoryUtils.h>
 #include <Hook/HookManager.h>
 #include <SDK/SDK.h>
+#include <SDK/TypeInfo.h>
 #include <Network/SocketManager.h>
 #include <API/KyberAPIService.h>
 
@@ -50,7 +51,7 @@ Program::Program(HMODULE module)
     dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
     SetConsoleMode(stdoutHandle, dwMode);
 
-    SetConsoleTitleA(("Kyber v" + KYBER_VERSION).c_str());
+    SetConsoleTitleA(("DeadSpace Modding Tools v" + KYBER_VERSION).c_str());
 
     new std::thread(&Program::InitializationThread, this);
 }
@@ -78,14 +79,14 @@ DWORD WINAPI Program::InitializationThread()
     g_renderer = new Dx12Renderer();
     m_server = new Server();
 
-    KYBER_LOG(LogLevel::Info, "Initialized Kyber v" << KYBER_VERSION);
-    KYBER_LOG(LogLevel::Warning, "Press [INSERT] on your Keyboard to use Kyber!");
+    KYBER_LOG(LogLevel::Info, "Initialized v" << KYBER_VERSION);
+    KYBER_LOG(LogLevel::Warning, "Press [INSERT] on your Keyboard to use!");
 
     while (1)
     {
         if (GetAsyncKeyState(VK_END) & 1)
         {
-            KYBER_LOG(LogLevel::Info, "Ejecting Kyber");
+            KYBER_LOG(LogLevel::Info, "Ejecting");
             FreeLibrary(m_module);
             delete this;
             break;
