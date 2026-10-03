@@ -110,7 +110,12 @@ void Program::InitializeGameHooks()
     Hook::ApplyQueuedActions();
 }
 
-__int64 ClientStateChangeHk(__int64 inst, ClientState currentClientState, ClientState lastClientState)
+GameClient* Program::GetGameClient()
+{
+    return *reinterpret_cast<GameClient**>(*reinterpret_cast<__int64*>(0x144E5D100) + 0xF0);
+}
+
+__int64 ClientStateChangeHk(GameClient* inst, ClientState currentClientState, ClientState lastClientState)
 {
     static const auto trampoline = HookManager::Call(ClientStateChangeHk);
 
@@ -119,7 +124,6 @@ __int64 ClientStateChangeHk(__int64 inst, ClientState currentClientState, Client
         "ClientState_StartLoadingLevel", "ClientState_WaitingForLevelLoaded", "ClientState_WaitingForLevelLink", "ClientState_LevelLinked",
         "ClientState_WaitingForGhosts", "ClientState_Ingame", "ClientState_LeaveIngame", "ClientState_ConnectToServer",
         "ClientState_ShuttingDown", "ClientState_Shutdown", "ClientState_None" };
-
 
     g_program->m_clientState = currentClientState;
     KYBER_LOG(LogLevel::Debug, "Client state changed to " << stateNames[currentClientState]);

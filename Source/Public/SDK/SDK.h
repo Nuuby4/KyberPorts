@@ -86,6 +86,13 @@ struct ServerSpawnInfo
     void* runtimeModules = nullptr;
 };
 
+class GameClient
+{
+public:
+    void* vtable;
+    class GameSettings* gameSettings;
+};
+
 struct SocketSpawnInfo
 {
     SocketSpawnInfo(bool isProxied, const char* proxyAddress, const char* serverName)

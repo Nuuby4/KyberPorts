@@ -15,7 +15,7 @@ namespace Kyber
 {
 TL_DECLARE_FUNC(0x14119B8C0, __int64, Settings_Settings, __int64 settingsManager, __int64 typeInfo);
 
-__int64 ClientStateChangeHk(__int64 a1, ClientState currentClientState, ClientState lastClientState);
+__int64 ClientStateChangeHk(GameClient* a1, ClientState currentClientState, ClientState lastClientState);
 
 class Program
 {
@@ -25,6 +25,7 @@ public:
 
     DWORD WINAPI InitializationThread();
     void InitializeGameHooks();
+    GameClient* GetGameClient();
 
     template<typename T>
     T* GetSettingsObject(const __int64 typeInfoOffset)
@@ -36,7 +37,7 @@ public:
     HMODULE m_module;
     APIService* m_api;
     Server* m_server;
-    ClientState m_clientState = ClientState_None;
+    ClientState m_clientState;
     bool m_joining;
 };
 
