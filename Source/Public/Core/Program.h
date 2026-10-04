@@ -26,6 +26,7 @@ public:
     DWORD WINAPI InitializationThread();
     void InitializeGameHooks();
     GameClient* GetGameClient();
+    void ChangeClientState(ClientState nextState);
 
     template<typename T>
     T* GetSettingsObject(const __int64 typeInfoOffset)

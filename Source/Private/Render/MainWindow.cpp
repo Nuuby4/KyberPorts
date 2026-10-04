@@ -130,20 +130,20 @@ void MainWindow::Draw()
 
             ImGui::Spacing();
 
-            /*
+            
             ImGui::SeparatorText("Join Server");
 
-            static char* ipAddress;
+            static char ipAddress[14] = "127.0.0.1";
             ImGui::InputText("IP Address", ipAddress, IM_COUNTOF(ipAddress));
 
-            .
+            
             ClientSettings* clientSettings = Settings<ClientSettings>(TYPEINFO_CLIENTSETTINGS);
-
             if (ImGui::Button("Connect"))
             {
                 clientSettings->ServerIp = ipAddress;
+                g_program->ChangeClientState(ClientState_Startup);
             }
-            */
+            
             ImGui::SeparatorText("Server Settings");
 
             SimulationTimeSettings* simTimeSettings = Settings<SimulationTimeSettings>(TYPEINFO_SIMULATIONTIMESETTINGS);

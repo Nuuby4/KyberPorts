@@ -115,6 +115,11 @@ GameClient* Program::GetGameClient()
     return *reinterpret_cast<GameClient**>(*reinterpret_cast<__int64*>(0x144E5D100) + 0xF0);
 }
 
+void Program::ChangeClientState(ClientState nextState)
+{
+    ClientStateChangeHk(g_program->GetGameClient(), nextState, g_program->m_clientState);
+}
+
 __int64 ClientStateChangeHk(GameClient* inst, ClientState currentClientState, ClientState lastClientState)
 {
     static const auto trampoline = HookManager::Call(ClientStateChangeHk);
